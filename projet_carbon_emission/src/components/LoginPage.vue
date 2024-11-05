@@ -7,7 +7,7 @@
     <div v-if="btnShow">
         
         <div id="formEle">
-            <GoogleLogin class="loginBtn"  :client-id="clientId" @success="onSignInSuccess" @error="onSignInError" @click="onSignInSuccess">Google</GoogleLogin>
+            <button class="loginBtn"  @click="loginWithGoogle"  :disabled="isActivated">Google</button>
             <button class="loginBtn"  @click="signIn"  :disabled="isActivated">Microsoft</button>
         </div>
         <div id="ball"></div>
@@ -19,7 +19,8 @@
 </template>
   
 <script>
-import { GoogleLogin } from 'vue3-google-login';
+import { auth, provider } from '../lib/firebase.js';
+import { signInWithPopup} from 'firebase/auth';
 import Background from './Background.vue';
 import {signInAndGetUser} from '@/lib/microsoftGraph';
 import axios from 'axios'
@@ -27,23 +28,18 @@ import axios from 'axios'
   export default {
     name: "login-page",
     components:{
-        Background, GoogleLogin
+        Background
     },
     methods:{
 
-        onSignInSuccess(googleUser) {
-            const profile = googleUser.getAuthResponse();
-            console.log('ID:', profile.getId());
-            console.log('Name:', profile.getName());
-            console.log('Email:', profile.getEmail());
-
-            const token = googleUser.getAuthResponse().id_token;
-            console.log('ID Token:', token);
-
-        },
-        
-        onSignInError(error) {
-            console.error('Google Sign-In Error:', error);
+        async loginWithGoogle() {
+            try {
+                const result = await signInWithPopup(auth, provider);
+                const user = result.user;
+                console.log("user: ", user);
+            } catch (error) {
+                console.error("Error message: ", error);
+            }
         },
 
         async signIn() {
@@ -81,7 +77,6 @@ import axios from 'axios'
             
             isShow: false,
             btnShow: false,
-            clientId:"369210574185-t28t40io82oobgi1nan1fh2b9qtqivr0.apps.googleusercontent.com",
             isActivated:false,
             email:[]
         

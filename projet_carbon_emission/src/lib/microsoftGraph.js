@@ -13,8 +13,7 @@ const requestedScopes = {
 const msalInstance = new msal.PublicClientApplication({
 
     auth:{
-        clientId: process.env.VUE_APP_OAUTH_CLIENT_ID,
-        redirect_uri: 'http://localhost:8081/login'
+        clientId: process.env.VUE_APP_OAUTH_CLIENT_ID
     },
     cache: {
         cacheLocation: "sessionStorage"

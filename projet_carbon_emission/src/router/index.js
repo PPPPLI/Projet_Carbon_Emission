@@ -28,11 +28,15 @@ const router = createRouter({
 
 function isAuthenticated(){
 
+
+
     if(localStorage.getItem("user") != null){
 
-        let date = JSON.parse(localStorage.getItem("createdDate"),Date)
+        let date = JSON.parse(localStorage.getItem("createdDate"),Number)
 
         let currentTime =  (Date.now() + 3600000)
+
+
 
         if(date < currentTime){
 

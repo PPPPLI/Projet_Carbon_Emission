@@ -25,6 +25,7 @@ import Background from './Background.vue';
 import {signInAndGetUser} from '@/lib/microsoftGraph';
 import axios from 'axios'
 
+
   export default {
     name: "login-page",
     components:{
@@ -32,11 +33,16 @@ import axios from 'axios'
     },
     methods:{
 
+
         async loginWithGoogle() {
             try {
                 const result = await signInWithPopup(auth, provider);
                 const user = result.user;
-                console.log("user: ", user);
+                localStorage.setItem("user",user.displayName)
+                localStorage.setItem("createdDate",Date.now().toString())
+                localStorage.setItem("email",user.email)
+                this.$router.push("/")
+
             } catch (error) {
                 console.error("Error message: ", error);
             }
@@ -58,9 +64,10 @@ import axios from 'axios'
 
 
                 this.email = response.data.value;
-                console.log(this.email)
-                
-                //this.$emit("userShare",this.user)
+                localStorage.setItem("user",this.email.name)
+                localStorage.setItem("createdDate",Date.now().toString())
+                localStorage.setItem("email",this.email.email)
+                this.$router.push("/")
             } catch (error) {
                 console.error('Sign-in failed:', error);
             }
@@ -252,15 +259,15 @@ import axios from 'axios'
     backdrop-filter: blur(10px);
     box-shadow: 0 0 5px rgba(215, 215, 215, 0.2), 0 0 10px rgba(212, 212, 212, 0.3), 0 0 15px rgba(222, 222, 222, 0.5);
     text-align: center;
-
-    &:hover{
-        background-color: rgba(255, 255, 255, 0.3);
-        color: rgb(235, 235, 235);
-
-    }
-
     
   }
+
+.loginBt:hover{
+
+    background-color: rgba(255, 255, 255, 0.3);
+    color: rgb(235, 235, 235);
+
+    }
 
 
   </style>

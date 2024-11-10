@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
 import MainPage from "@/components/MainPage.vue";
 import LoginPage from "@/components/LoginPage.vue";
+import GuidePage from "@/components/GuidePage.vue";
+import CloudPage from "@/components/CloudPage.vue";
 
 
 const routes = [
@@ -10,6 +12,25 @@ const routes = [
         name:"home",
         component: MainPage,
         meta:{requiresAuth:true},
+        redirect:"/guide",
+        children:[
+            {
+                path:"guide",
+                component: GuidePage
+            },
+            {
+                path:"cloud",
+                component: CloudPage
+            },
+            {
+                path:"flight",
+                component: CloudPage
+            },
+            {
+                path:"travel",
+                component: CloudPage
+            }
+        ]
     },
 
     {

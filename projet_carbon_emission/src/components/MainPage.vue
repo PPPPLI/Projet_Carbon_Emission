@@ -1,6 +1,10 @@
 <template>
     <background></background>
-    <header-page></header-page>
+    <div id="mainDiv">
+        <header-page></header-page>
+        <router-view></router-view>
+    </div>
+
 
 </template>
   
@@ -39,6 +43,13 @@ import axios from 'axios';
   </script>
   
   <style scoped>
+
+  #mainDiv{
+
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+  }
 
 
 

@@ -7,9 +7,22 @@
             <div class="act">Cloud Computing</div>
             <div class="act">Flight Activity</div>
             <div class="act">Custom Activities</div>
-            <div id="guide"></div>
+            <div id="userDiv">
+                <div id="guide" @click="switchUser"></div>
+                <div v-if="userShow">{{user}}</div>
+                <div v-if="userShow" @click="logOutShow">Log out</div>
+            </div>
         </div>
+        <div id="confirmDiv" v-if="confirmShow" @click="confirmOff">
 
+        </div>
+        <div id="confirmDivBtn" v-if="confirmShow">
+            <p>Are you sure for logout ?</p>
+            <div>
+                <div class="btn" @click="logOut">Confirm</div>
+                <div class="btn" @click="confirmOff">Cancel</div>
+            </div>
+        </div>
 
     </div>
 
@@ -23,7 +36,35 @@
 
         return {
 
-            user: ""
+            user: "",
+            userShow: false,
+            confirmShow: false
+        }
+    },
+
+    methods:{
+
+        switchUser(){
+
+            this.userShow = !this.userShow
+            this.userShow? document.querySelector("#guide").style.transform = "rotate(90deg)":document.querySelector("#guide").style.transform = "rotate(0deg)"
+        },
+
+        logOutShow(){
+
+            this.confirmShow = true
+
+        },
+
+        logOut(){
+
+            localStorage.clear();
+            this.$router.push("/login")
+        },
+
+        confirmOff(){
+
+            this.confirmShow = false
         }
     },
 
@@ -36,6 +77,126 @@
   </script>
   
   <style scoped>
+
+  #confirmDiv{
+
+    width: 100vw;
+    height: 100vh;
+    background-color: black;
+    opacity: 0.5;
+    position: fixed;
+    top: 0;
+    overflow: hidden;
+  }
+
+  #confirmDivBtn{
+
+    background: linear-gradient(90deg,rgb(151, 159, 176),rgb(174, 128, 137));
+    position: fixed;
+    min-width: fit-content;
+    min-height: fit-content;
+    height: 15vh;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 5px;
+    color: rgb(255, 255, 255);
+    font-weight: 700;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 3rem;
+    box-shadow: 0 0 5px rgba(215, 215, 215, 0.2), 0 0 10px rgba(212, 212, 212, 0.3), 0 0 15px rgba(222, 222, 222, 0.5);
+  }
+
+  #confirmDivBtn > div:nth-child(2){
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+  }
+
+  .btn{
+
+    border: 1px solid rgb(203, 203, 203);
+    border-radius: 5px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 1s;
+  }
+
+  .btn:hover{
+
+    background-color: aliceblue;
+    color: grey;
+  }
+
+
+  p{
+
+    font-size: larger;
+    user-select: none;
+  }
+
+  #userDiv{
+
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+    width: 250px;
+    font-size: large;
+    
+  }
+
+  #userDiv > div:not(:first-child){
+
+    padding-top: 6px;
+    margin-left: 6px;
+    animation: slipIn 1s linear;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  @keyframes slipIn {
+
+    0%{
+
+        width: 0;
+    }
+
+    100%{
+
+        width: 23%;
+    }
+    
+  }
+
+  #userDiv > div:nth-child(2){
+
+    cursor: default;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 100px;
+}
+
+  #userDiv > div:nth-child(3){
+
+    margin-left: 30px;
+    background: linear-gradient(90deg, rgb(254, 185, 185),rgb(248, 106, 106));
+    background-clip: text;
+    transition: all 2s;
+    cursor: pointer;
+  }
+
+  #userDiv > div:nth-child(3):hover{
+
+    background: linear-gradient(90deg,rgb(255, 90, 90),rgb(255, 129, 129));
+    background-clip: text;
+
+  }
 
   #guide{
 
@@ -57,13 +218,10 @@
     transition: all 1s;
     margin-left: 15px;
 
-  }
-
-  #guide:hover{
-
     transform-origin: center;
-    transform: rotate(90deg);
+
   }
+
 
   #title{
 
@@ -75,7 +233,7 @@
     color: transparent;
     user-select: none;
     background-size: 300%;
-    animation: gradientAnimation 5s ease infinite;
+    animation: gradientAnimation 4s ease infinite;
   }
 
   @keyframes gradientAnimation {
@@ -103,15 +261,15 @@
   }
 
   #activityDiv{
-    width: 70%;
-    min-width: 1000px;
+    width: 100%;
+    min-width: fit-content;
     display: flex;
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
     color: transparent;
     font-size: x-large;
-    background: linear-gradient(90deg, #579f9f, #8C92AC);
+    background: linear-gradient(90deg, #c0ffff, #b9bfda);
     font-weight: 700;
     background-clip: text;
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;

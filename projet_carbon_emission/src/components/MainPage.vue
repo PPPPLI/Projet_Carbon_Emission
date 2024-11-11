@@ -1,6 +1,6 @@
 <template>
     <background></background>
-    <div id="mainDiv">
+    <div id="mainDiv" v-if="isShow">
         <header-page></header-page>
         <router-view></router-view>
     </div>
@@ -11,7 +11,6 @@
   <script>
 import Background from './Background.vue';
 import HeaderPage from './HeaderPage.vue';
-import axios from 'axios';
 
   export default {
     name: "mainPage",
@@ -20,23 +19,20 @@ import axios from 'axios';
     },
 
     mounted(){
+        
+        setTimeout(() => {
+            
+            this.isShow = true
 
-        const apiKey = 'DHE6JBGJY919504GZTX3TERCJ8'
-        const url = 'https://api.climatiq.io/compute/v1/metadata'
+        }, 2000);
+    },
 
-        axios.get(url, {
+    data(){
 
-            headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(response => {
-                console.log(response.data);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+        return {
+
+            isShow: false
+        }
     }
 
   }
@@ -49,6 +45,21 @@ import axios from 'axios';
     display: flex;
     flex-direction: column;
     justify-content: start;
+    animation: showUp 2s ease;
+  }
+
+  @keyframes showUp {
+
+    0%{
+
+        opacity: 0;
+    }
+
+    100%{
+
+        opacity: 1;
+    }
+    
   }
 
 

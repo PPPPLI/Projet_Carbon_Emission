@@ -3,10 +3,10 @@
     <div id="headerDiv">
 
         <div id="activityDiv">
-            <div id="title">ÉcoCalcul</div>
-            <div class="act">Cloud Computing</div>
-            <div class="act">Flight Activity</div>
-            <div class="act">Custom Activities</div>
+            <router-link id="title" to="/guide">ÉcoCalcul</router-link>
+            <router-link to="/cloud" class="act">Cloud Computing</router-link>
+            <router-link to="/flight" class="act">Flight Activity</router-link>
+            <router-link to="/travel" class="act">Custom Activities</router-link>
             <div id="userDiv">
                 <div id="guide" @click="switchUser"></div>
                 <div v-if="userShow">{{user}}</div>
@@ -91,7 +91,7 @@
 
   #confirmDivBtn{
 
-    background: linear-gradient(90deg,rgb(151, 159, 176),rgb(174, 128, 137));
+    background: linear-gradient(90deg, #8696a7, #768e92);
     position: fixed;
     min-width: fit-content;
     min-height: fit-content;
@@ -231,7 +231,7 @@
     background: linear-gradient(90deg, #9de7d3, #8C92AC);
     background-clip: text;
     color: transparent;
-    user-select: none;
+    cursor: pointer;
     background-size: 300%;
     animation: gradientAnimation 4s ease infinite;
   }
@@ -276,10 +276,15 @@
   }
 
   .act{
+    display: flex;
     margin-top: 7px;
     padding: 5px;
     cursor: pointer;
     transition: all 1s;
+    text-decoration: none;
+    color: transparent;
+    background-clip: text;
+    
     
   }
 

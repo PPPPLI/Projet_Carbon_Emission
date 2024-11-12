@@ -5,7 +5,7 @@
         <div id="activityDiv">
             <router-link id="title" to="/guide">ÉcoCalcul</router-link>
             <router-link to="/cloud" class="act">Cloud Computing</router-link>
-            <router-link to="/flight" class="act">Flight Activity</router-link>
+            <router-link to="/flight" class="act">Travel Activity</router-link>
             <router-link to="/travel" class="act">Custom Activities</router-link>
             <div id="userDiv">
                 <div id="guide" @click="switchUser"></div>

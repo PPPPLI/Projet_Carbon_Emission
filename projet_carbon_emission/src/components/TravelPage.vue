@@ -2,17 +2,21 @@
     <div id="main"> 
         <div id="selectDiv">
             <div class="selectBox">
-                <label for="provider-select"></label>
-                <select v-model="selectedProvider"  id="provider-select" @change="activateRe" ref="providerEle">
-                    <option disabled selected>Cloud Providers</option>
-                    <option v-for="(item,index) in providers" :key="item.provider_id" :value="index">{{ item.provider_full_name}}</option>
-                </select>
+                <input type="text" v-model="selectedCountry"  id="country-select"  ref="countryEle" placeholder="Country">
             </div>
             <div class="selectBox"> 
-                <label for="region-select"></label>
-                <select v-if="showRegions" id="region-select" v-model="selectedRegion" @change="activateVM" ref="regionEle">
-                    <option disabled selected>Regions</option>
-                    <option v-for="(region,index) in regions" :key="index" :value="region">{{ region }}</option>
+                <input type="text" id="region-select" v-model="selectedCity"  ref="cityEle" placeholder="City">
+            </div>
+            <div class="selectBox">
+                <select v-model="selectedMode" ref="modeEle" @change="activateCarOption">
+                    <option disabled selected>Transport Mode</option>
+                    <option v-for="(ele,index) in transport" :key="index">{{ ele }}</option>
+                </select>
+            </div>
+            <div class="selectBox">
+                <select v-model="selectedCarType" ref="carTypeEle" v-if="showCar">
+                    <option selected disabled>Car Type</option>
+                    <option v-for="(ele,index) in carType" :key="index">{{ ele }}</option>
                 </select>
             </div>
         </div>
@@ -38,7 +42,7 @@
                     <span id="pageSpan"><input type="number" v-model="currentPage" id="pageInput" min="1" :max="totalPages" @change="limitNum">&nbsp;&nbsp;/  Total {{ totalPages }}</span>
                     <button @click="nextPage" :disabled="currentPage === totalPages" class="pageBtn">Next</button>
                 </div>
-                <div class="vmEle" :style="{ width: searchWidth + 'px' }" id="calBtn" @click="calculate">Calculate</div>
+                <div class="vmEle" :style="{ width: searchWidth + 'px' }" id="calBtn">Calculate</div>
 
             </div>
         </div>
@@ -59,13 +63,14 @@ export default {
     data(){
 
         return{
-            showRegions:false,
             showVM: false,
-            providers:[],
-            selectedProvider: "Cloud Providers",
-            selectedRegion:"Regions",
-            regions:[],
-            vms:[],
+            transport:["car","air","rail"],
+            selectedCountry: "",
+            selectedCity:"",
+            showCar:false,
+            selectedCarType:"Car Type",
+            selectedMode:"Transport Mode",
+            carType:["petrol","diesel","hybrid","plugin_hybrid","battery","average"],
             pageSize: 8,
             currentPage:1,
             elementLeft: 0,
@@ -75,34 +80,23 @@ export default {
             duration: 1,
             apiKey : 'JAZW4BVWY549KEH6XDRJPKHWC8',
             calRes : "",
-            data:{
-                memory:0.1382,
-                cpu:0.1065,
-                embodied_cpu:0.4989
-            }
+            data:""
         }
     },
 
     methods:{
 
-        activateRe(){
-            if(!this.showRegions) this.showRegions = true
+        activateCarOption(){
 
-            this.regions = this.providers[this.selectedProvider].regions
+            if(this.selectedMode === "car"){
 
-            this.selectedRegion = "Regions"
-        },
+                this.showCar = true
+            }else{
 
-        activateVM(){
+                this.showCar = false
+            }
+        },  
 
-            if(!this.showVM) this.showVM = true
-
-            this.vms = this.providers[this.selectedProvider].virtual_machine_instances
-
-            const elementReg = this.$refs.regionEle;
-            this.elementWidth = this.getElementLeftOffset(elementReg) + this.getElementWidth(elementReg) - this.elementLeft
-
-        },
 
         prevPage(){
 
@@ -125,10 +119,10 @@ export default {
         },
 
         updateOtherElementPosition() {
-            const element = this.$refs.providerEle;
+            const element = this.$refs.countryEle;
             this.elementLeft = this.getElementLeftOffset(element);
 
-            const elementReg = this.$refs.regionEle;
+            const elementReg = this.$refs.cityEle;
             if(elementReg != null){
 
                 this.elementWidth = this.getElementLeftOffset(elementReg) + this.getElementWidth(elementReg) - this.elementLeft
@@ -212,57 +206,15 @@ export default {
             if(this.duration > 999) this.duration = 999
         },
 
-        calculate(){
-
-            /*const url = `https://api.climatiq.io/compute/v1/${this.selectedProvider}/instance`
-            const vmIndex = parseInt(this.previousSelectedVm.slice(2))
-            console.log(this.previousSelectedVm.slice(2))
-
-            axios.post(url,
-
-                {
-
-                    "region":this.selectedRegion,
-                    "instance":this.vms[(this.pageSize-1) * this.currentPage + vmIndex],
-                    "duration":this.duration,
-                    "duration_unit": "h"
-                },
-
-                {headers: {
-                    'Authorization': `Bearer ${this.apiKey}`,
-                }},
-
-            ).then(response =>{
-
-                this.calRes = response
-            }).catch(error=>{
-
-                console.log(error)
-            })*/
-
-
-        }
     },  
 
     mounted(){
 
-        const url = 'https://api.climatiq.io/compute/v1/metadata'
+        axios.get("https://countriesnow.space/api/v0.1/countries").then(res =>{
 
-        axios.get(url, {
-
-            headers: {
-                'Authorization': `Bearer ${this.apiKey}`,
-                'Content-Type': 'application/json'
-            }
+            this.data = res
+            console.log(res)
         })
-            .then(response => {
-                this.providers = response.data.cloud_providers
-                console.log(response.data.cloud_providers)
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-
         this.updateOtherElementPosition();
 
         window.addEventListener("scroll", this.updateOtherElementPosition);
@@ -403,7 +355,7 @@ export default {
     min-width: fit-content;
 }
 
-select,option{
+select,option,input{
 
     padding: 5px;
     border-radius: 5px;
@@ -411,7 +363,7 @@ select,option{
     font-size: large;
     color: rgb(216, 216, 216);
     text-align: center;
-    width: 300px;
+    width: 150px;
     background-color:  rgba(255, 255, 255, 0.1);
     cursor: pointer;
 
@@ -532,4 +484,3 @@ input[type="number"] {
 }
 
 </style>
-  

@@ -3,6 +3,7 @@ import MainPage from "@/components/MainPage.vue";
 import LoginPage from "@/components/LoginPage.vue";
 import GuidePage from "@/components/GuidePage.vue";
 import CloudPage from "@/components/CloudPage.vue";
+import TravelPage from "@/components/TravelPage.vue";
 
 
 const routes = [
@@ -24,7 +25,7 @@ const routes = [
             },
             {
                 path:"flight",
-                component: CloudPage
+                component: TravelPage
             },
             {
                 path:"travel",

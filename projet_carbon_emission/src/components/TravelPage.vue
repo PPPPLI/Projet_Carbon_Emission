@@ -2,37 +2,29 @@
     <div id="main"> 
         <div id="selectDiv">
             <div class="selectBox">
-                <input type="text" v-model="selectedCountry"  id="country-select"  ref="countryEle" placeholder="Country">
+                <input type="text" v-model="selectedCountry"  id="country-select"  ref="countryEle" placeholder="Country"  @change="onchangeSearch" @click="focusInput(1)">
             </div>
             <div class="selectBox"> 
-                <input type="text" id="region-select" v-model="selectedCity"  ref="cityEle" placeholder="City">
+                <input type="text" id="region-select" v-model="selectedCity"  ref="cityEle" placeholder="City"  @change="onchangeSearch"  @click="focusInput(2)">
             </div>
             <div class="selectBox">
                 <select v-model="selectedMode" ref="modeEle" @change="activateCarOption">
-                    <option disabled selected>Transport Mode</option>
+                    <option disabled selected>Transport</option>
                     <option v-for="(ele,index) in transport" :key="index">{{ ele }}</option>
                 </select>
             </div>
-            <div class="selectBox">
-                <select v-model="selectedCarType" ref="carTypeEle" v-if="showCar">
+            <div class="selectBox" ref="carTypeEle" id="carType">
+                <select v-model="selectedCarType"  v-if="showCar">
                     <option selected disabled>Car Type</option>
                     <option v-for="(ele,index) in carType" :key="index">{{ ele }}</option>
                 </select>
             </div>
         </div>
-        <div id="vmDiv" v-if="showVM">
+        <div id="vmDiv">
 
-            <div id="vmsList" :style="{ left: elementLeft + 'px', width:elementWidth + 'px' }"> 
-                <div id="vmTitle" :style="{ width: elementWidth + 'px' }"> 
-                    <div class="vmEle" :style="{ width: titleWidth + 'px' }" id="durationDiv">
-                        <span>Duration</span>
-                        <input type="number" min="1" id="durationInput" v-model="duration" @change="limitDuration">
-                    </div>
-                    <input type="text" class="vmEle" :style="{ width: searchWidth + 'px' }" placeholder ="Type for search..." @change="searchVms" v-model="inputVal">
-                </div>
-                
+            <div id="vmsList" :style="{ left: elementLeft + 'px', width:elementWidth + 'px' }">        
                 <div v-for="(item, index) in paginatedData" :key="index" class="vmEle" :style="{width:elementWidth + 'px' }" @click="selectVm('vm'+index)" :id="'vm'+index">
-                    {{ item }}
+                    {{item}}
                 </div>
             </div>
 
@@ -69,7 +61,7 @@ export default {
             selectedCity:"",
             showCar:false,
             selectedCarType:"Car Type",
-            selectedMode:"Transport Mode",
+            selectedMode:"Transport",
             carType:["petrol","diesel","hybrid","plugin_hybrid","battery","average"],
             pageSize: 8,
             currentPage:1,
@@ -80,11 +72,41 @@ export default {
             duration: 1,
             apiKey : 'JAZW4BVWY549KEH6XDRJPKHWC8',
             calRes : "",
-            data:""
+            data:"",
+            searchCountry:[],
+            searchCity:[],
+            countySelected:false,
+            countryFocased:true,
+            citySelected:false,
+            cityFocased: false,
+            typeSelected:false,
+            searchData:[]
+
         }
     },
 
     methods:{
+
+        focusInput(param){
+
+            if(param == 1){
+
+                this.countryFocased = true
+                this.cityFocased = false
+                this.$refs.countryEle.style.border = "2px red solid"
+                this.$refs.cityEle.style.border = "2px black solid"
+            }else{
+
+                this.countryFocased = false
+                this.cityFocased = true
+                this.$refs.countryEle.style.border = "2px black solid"
+                this.$refs.cityEle.style.border = "2px red solid"
+
+            }
+
+
+            this.search()
+        },
 
         activateCarOption(){
 
@@ -122,7 +144,7 @@ export default {
             const element = this.$refs.countryEle;
             this.elementLeft = this.getElementLeftOffset(element);
 
-            const elementReg = this.$refs.cityEle;
+            const elementReg = this.$refs.carTypeEle;
             if(elementReg != null){
 
                 this.elementWidth = this.getElementLeftOffset(elementReg) + this.getElementWidth(elementReg) - this.elementLeft
@@ -145,10 +167,33 @@ export default {
 
             this.initializeSelection()
             this.previousSelectedVm = item
+            let index = item.replace("vm","")
 
             const ele = document.querySelector("#"+item)
             ele.style.backgroundColor = "rgba(142, 227, 255, 0.1)"
             ele.style.border = "2px solid rgb(225, 225, 225)"
+
+            if(this.countryFocased){
+
+                this.selectedCountry = this.paginatedData[index]
+                this.countySelected = true
+            }else{
+
+                this.selectedCity = this.paginatedData[index]
+                this.citySelected = true
+
+                for(let ele of this.data){
+
+                    if(ele.cities.includes(this.selectedCity)){
+
+                        this.selectedCountry = ele.country
+                        this.countySelected = true
+                        break
+                    }
+                }
+            }
+
+            this.search()
         },
 
         initializeSelection(){
@@ -156,16 +201,54 @@ export default {
             if(this.previousSelectedVm != ""){
 
                 const preEle = document.querySelector("#"+this.previousSelectedVm)
+                
+
+                preEle.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
+                preEle.style.border = "2px solid rgb(57, 57, 57)"
+                this.previousSelectedVm = ""
+                
+
+            }
+
+        },
+
+        onchangeSearch(){
+
+            if(this.countryFocased){
+
+            this.countySelected = false
+            this.selectedCity = ""
+            this.citySelected = false
+            }else{
+
+            this.citySelected = false
+            }
+
+            this.search()
+
+        },
+
+        search(){
+
+            for(let i = 0; i < this.paginatedData.length; i++){
+
+                const preEle = document.querySelector("#vm"+i)
                 preEle.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
                 preEle.style.border = "2px solid rgb(57, 57, 57)"
                 this.previousSelectedVm = ""
             }
 
-        },
 
-        searchVms(){
+            if(this.countryFocased){
 
-            const vmsList = this.providers[this.selectedProvider].virtual_machine_instances
+                this.inputVal = this.selectedCountry
+
+            }else{
+
+                this.inputVal = this.selectedCity
+            }
+
+            const newList = []
 
 
             if(this.inputVal !== ""){
@@ -173,20 +256,69 @@ export default {
 
                 const regex = new RegExp(`${this.inputVal}`,"ig");
 
-                const newList = []
+
+                if(this.countryFocased){
+
+                    for(let ele of this.searchCountry){
+
+                        if(regex.test(ele)) newList.push(ele)
+                    }
+
+                }else{
+
+                    if(this.countySelected){
+
+                        for(let ele of this.data){
+
+                            if(ele.country == this.selectedCountry){
+
+                                for(let city of ele.cities){
+
+                                    if(regex.test(city)) newList.push(city)
+                                }
+                            }
+                        }
+                    }else{
+
+                        for(let ele of this.searchCity){
 
 
-                for(let ele of vmsList){
+                            if(regex.test(ele)) newList.push(ele)
+                        }
 
+                    }
 
-                    if(regex.test(ele)) newList.push(ele)
                 }
 
-                this.vms = newList
+                this.searchData = newList
 
             }else{
 
-                this.vms = vmsList
+                if(this.countryFocased){
+
+                    this.searchData = this.searchCountry
+                }else{
+
+                    if(this.countySelected){
+
+                        for(let ele of this.data){
+
+                            if(ele.country == this.selectedCountry){
+
+                                for(let city of ele.cities){
+
+                                    newList.push(city)
+                                }
+                            }
+                        }
+
+                        this.searchData = newList
+                    }else{
+
+                        this.searchData = this.searchCity
+                    }
+                }
+                
             }
 
             this.totalPages === 0? this.currentPage = 0:this.currentPage = 1
@@ -212,13 +344,32 @@ export default {
 
         axios.get("https://countriesnow.space/api/v0.1/countries").then(res =>{
 
-            this.data = res
-            console.log(res)
+            this.data = res.data.data
+
+            for(let ele of this.data){
+
+                this.searchCountry.push(ele.country)
+
+            }
+
+            for(let ele of this.data){
+
+                for(let city of ele.cities){
+
+                    this.searchCity.push(city)
+                }
+            }
+
+            this.searchData = this.searchCountry
+            
+            console.log(this.data)
         })
         this.updateOtherElementPosition();
 
         window.addEventListener("scroll", this.updateOtherElementPosition);
         window.addEventListener("resize", this.updateOtherElementPosition);
+
+        this.$refs.countryEle.style.border = "2px red solid"
     },
 
     beforeUnmount() {
@@ -232,14 +383,14 @@ export default {
 
 
         totalPages() {
-            return Math.ceil(this.vms.length / this.pageSize);
+            return Math.ceil(this.searchData.length / this.pageSize);
         },
 
 
         paginatedData() {
             const start = (this.currentPage - 1) * this.pageSize;
             const end = start + this.pageSize;
-            return this.vms.slice(start, end);
+            return this.searchData.slice(start, end);
         },
 
         searchWidth(){
@@ -301,12 +452,8 @@ export default {
     margin-top: 1rem;
 }
 
-#vmsList >div:nth-child(2){
 
-    margin-top: 15px;
-}
-
-#vmsList > div:nth-child(n+2):hover{
+#vmsList > div:nth-child(n):hover{
 
     border: 2px solid rgb(225, 225, 225) !important;
     background-color: rgba(255, 255, 255, 0.3) !important;
@@ -345,14 +492,14 @@ export default {
     justify-content: space-around;
     align-items: center;
     width: 50vw;
+    height: 10;
     left: 50%;
     transform: translateX(-50%);
 }
 
 .selectBox{
 
-    width: 300px;
-    min-width: fit-content;
+    width: 20%;
 }
 
 select,option,input{
@@ -363,10 +510,15 @@ select,option,input{
     font-size: large;
     color: rgb(216, 216, 216);
     text-align: center;
-    width: 150px;
+    width: 100%;
     background-color:  rgba(255, 255, 255, 0.1);
     cursor: pointer;
 
+}
+
+input:focus{
+
+    outline: none;
 }
 
 option{
@@ -376,7 +528,7 @@ option{
 
 input::placeholder{
 
-    color: rgb(217, 217, 217);
+    color: rgba(217, 217, 217,0.5);
     padding: 5px;
 }
 
@@ -421,7 +573,7 @@ input::placeholder{
 
 #pageInput{
 
-    width: 30px;
+    width: 50px;
     background-color: rgba(255, 255, 255, 0.1);
     color: white;
     text-align: center;

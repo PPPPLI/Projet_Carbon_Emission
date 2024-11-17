@@ -17,6 +17,7 @@ This project is for the course **Interface Development and Design**. The chosen 
 
 - **Graphical Comparisons**:
   - Display graphical visualizations of CO2 emissions to facilitate easy comparison, such as emission differences between countries.
+  - The graphical visualizations are implemented using the **ECharts** library.
 
 ---
 

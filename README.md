@@ -16,7 +16,7 @@ This project is for the course **Interface Development and Design**. The chosen 
   - Custom activities.
 
 - **Graphical Comparisons**:
-  - Provide visual comparisons of CO2 emissions (e.g., between countries).
+  - Display graphical visualizations of CO2 emissions to facilitate easy comparison, such as emission differences between countries.
 
 ---
 
@@ -26,10 +26,7 @@ Before installing the project, ensure that the `.env` file is correctly set up a
 
 ### Example `.env` File
 ```
-VUE_APP_MICROSOFT_OAUTH_CLIENT_ID=e8137439-4d1d-462d-a85f-f81cfea8f0d8
-VUE_APP_GOOGLE_OAUTH_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID
-VUE_APP_GOOGLE_OAUTH_CLIENT_SECRET=YOUR_GOOGLE_CLIENT_SECRET
-VUE_APP_CLIMATIQ_API_KEY=YOUR_CLIMATIQ_API_KEY
+VUE_APP_OAUTH_CLIENT_ID=e8137439-4d1d-462d-a85f-f81cfea8f0d8
 ```
 
 ### Steps to Install
@@ -58,7 +55,8 @@ VUE_APP_CLIMATIQ_API_KEY=YOUR_CLIMATIQ_API_KEY
 
 ## Group Members
 
-- Ramanantsalama Matthieu
 - Liu Pei
 - Xia Ruixiang
+- Ramanantsalama Matthieu
+
 

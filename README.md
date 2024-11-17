@@ -27,7 +27,7 @@ Before installing the project, ensure that the `.env` file is correctly set up a
 
 ### Example `.env` File
 ```
-VUE_APP_OAUTH_CLIENT_ID=e8137439-4d1d-462d-a85f-f81cfea8f0d8
+VUE_APP_OAUTH_CLIENT_ID= ****
 ```
 
 ### Steps to Install

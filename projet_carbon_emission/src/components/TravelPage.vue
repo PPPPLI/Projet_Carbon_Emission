@@ -1,25 +1,30 @@
 <template>
     <div id="main"> 
+
+        <div id="warningText"  :style="{ left: elementLeft + 'px', width:elementWidth + 'px' }">* Please click search resultats to choose</div>
         <div id="selectDiv">
             <div class="selectBox">
-                <input type="text" v-model="selectedCountry"  id="country-select"  ref="countryEle" placeholder="Country"  @change="onchangeSearch" @click="focusInput(1)">
+                <input type="text" v-model="selectedCountry"  class="country-select"  ref="countryEle" placeholder="* From Country"  @change="onchangeSearch" @click="focusInput(1)">
             </div>
             <div class="selectBox"> 
-                <input type="text" id="region-select" v-model="selectedCity"  ref="cityEle" placeholder="City"  @change="onchangeSearch"  @click="focusInput(2)">
+                <input type="text" class="region-select" v-model="selectedCity"  ref="cityEle" placeholder="From City"  @change="onchangeSearch"  @click="focusInput(2)">
             </div>
             <div class="selectBox">
-                <select v-model="selectedMode" ref="modeEle" @change="activateCarOption">
-                    <option disabled selected>Transport</option>
-                    <option v-for="(ele,index) in transport" :key="index">{{ ele }}</option>
-                </select>
+                <input type="text" v-model="selectedCountryDes"  class="country-select"  ref="countryEleDes" placeholder="* To Country"  @change="onchangeSearch" @click="focusInput(3)">
             </div>
-            <div class="selectBox" ref="carTypeEle" id="carType">
-                <select v-model="selectedCarType"  v-if="showCar">
-                    <option selected disabled>Car Type</option>
-                    <option v-for="(ele,index) in carType" :key="index">{{ ele }}</option>
-                </select>
+            <div class="selectBox"> 
+                <input type="text" class="region-select" v-model="selectedCityDes"  ref="cityEleDes" placeholder="To City"  @change="onchangeSearch"  @click="focusInput(4)">
             </div>
         </div>
+        
+
+        <div class="selectBox" id="transportDiv" :style="{ left: elementLeft + 'px', width:elementWidth + 'px' }">
+            <select v-model="selectedMode" ref="modeEle" @change="activateCarOption" id="transportSelect" @click="focusInput(5)">
+                <option disabled selected>Transport</option>
+                <option v-for="(ele,index) in transport" :key="index">{{ ele }}</option>
+            </select>
+        </div>
+
         <div id="vmDiv">
 
             <div id="vmsList" :style="{ left: elementLeft + 'px', width:elementWidth + 'px' }">        
@@ -34,22 +39,26 @@
                     <span id="pageSpan"><input type="number" v-model="currentPage" id="pageInput" min="1" :max="totalPages" @change="limitNum">&nbsp;&nbsp;/  Total {{ totalPages }}</span>
                     <button @click="nextPage" :disabled="currentPage === totalPages" class="pageBtn">Next</button>
                 </div>
-                <div class="vmEle" :style="{ width: searchWidth + 'px' }" id="calBtn">Calculate</div>
+                <div class="vmEle" :style="{ width: searchWidth + 'px' }" id="calBtn" @click="calculate">Calculate</div>
 
             </div>
         </div>
-        </div>
+    </div>
+    <div :style="{ left: elementLeft + 'px !important', width:elementWidth + 'px' }" v-if="showChart" id="chart">
+        <chart-page :options="charteData"></chart-page>
+    </div>
 
 </template>
   
 <script>
 
 import axios from 'axios';
+import chartPage from './chartPage.vue';
 
 export default {
     name: "cloud-page",
     components:{
-
+        chartPage
     },
 
     data(){
@@ -59,28 +68,98 @@ export default {
             transport:["car","air","rail"],
             selectedCountry: "",
             selectedCity:"",
+            selectedCityDes:"",
+            selectedCountryDes:"",
             showCar:false,
             selectedCarType:"Car Type",
             selectedMode:"Transport",
-            carType:["petrol","diesel","hybrid","plugin_hybrid","battery","average"],
             pageSize: 8,
             currentPage:1,
             elementLeft: 0,
             elementWidth: 0,
             previousSelectedVm: "",
             inputVal: "",
-            duration: 1,
             apiKey : 'JAZW4BVWY549KEH6XDRJPKHWC8',
             calRes : "",
             data:"",
             searchCountry:[],
             searchCity:[],
-            countySelected:false,
+            countrySelected:false,
             countryFocased:true,
             citySelected:false,
             cityFocased: false,
+            countrySelectedDes:false,
+            countryFocasedDes:false,
+            citySelectedDes: false,
+            cityFocasedDes: false,
             typeSelected:false,
-            searchData:[]
+            searchData:[],
+            calculatedData:"",
+            showChart: false,
+            charteData: {
+                title: {
+                    text: 'Emission Data',
+                    textStyle: {
+                        color: 'rgba(255, 255, 255, 0.7)',
+                        fontSize: 18,
+                        lineHeight: 30
+                    },
+                    left: "0",
+                    height: "500px"
+                },
+                grid: {
+                    top: 130
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'line' },
+                    formatter: '{b}: {c}'
+                },
+                xAxis: {
+                    data: ['Direct Emission', 'Indirect Emission'],
+                    axisLabel: {
+                        color: '#ccc',
+                        fontSize: 14
+                    }
+                },
+                yAxis: {
+                    min: 0,
+                    max: 100,
+                    axisLabel: {
+                        color: '#ccc',
+                        fontSize: 14,
+                        formatter: function(value) {
+                            return value.toFixed(3);
+                        }
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(255, 255, 255, 0.2)',
+                            width: 0.5,
+                            type: 'solid'
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: 'KG',
+                        type: 'bar',
+                        data: [30, 70]
+                    }
+                ],
+                legend: {
+                    data: ['KG'],
+                    textStyle: {
+                        color: "#fff",
+                        fontSize: 14
+                    },
+                    bottom: "10px",
+                    left: "center", 
+                    orient: "vertical",
+
+                }
+            }
+
 
         }
     },
@@ -93,15 +172,62 @@ export default {
 
                 this.countryFocased = true
                 this.cityFocased = false
+                this.cityFocasedDes = false
+                this.countryFocasedDes = false
                 this.$refs.countryEle.style.border = "2px red solid"
                 this.$refs.cityEle.style.border = "2px black solid"
-            }else{
+                this.$refs.countryEleDes.style.border = "2px black solid"
+                this.$refs.cityEleDes.style.border = "2px black solid"
+                this.$refs.modeEle.style.border = "2px black solid"
+
+            }else if(param == 2){
 
                 this.countryFocased = false
                 this.cityFocased = true
+                this.cityFocasedDes = false
+                this.countryFocasedDes = false
                 this.$refs.countryEle.style.border = "2px black solid"
                 this.$refs.cityEle.style.border = "2px red solid"
+                this.$refs.countryEleDes.style.border = "2px black solid"
+                this.$refs.cityEleDes.style.border = "2px black solid"
+                this.$refs.modeEle.style.border = "2px black solid"
 
+
+            }else if(param == 3){
+
+                this.countryFocased = false
+                this.cityFocased = false
+                this.cityFocasedDes = false
+                this.countryFocasedDes = true
+
+                this.$refs.countryEle.style.border = "2px black solid"
+                this.$refs.cityEle.style.border = "2px black solid"
+                this.$refs.countryEleDes.style.border = "2px red solid"
+                this.$refs.cityEleDes.style.border = "2px black solid"
+                this.$refs.modeEle.style.border = "2px black solid"
+
+            }else if(param == 4){
+
+                this.countryFocased = false
+                this.cityFocased = false
+                this.cityFocasedDes = true
+                this.countryFocasedDes = false
+
+                this.$refs.countryEle.style.border = "2px black solid"
+                this.$refs.cityEle.style.border = "2px black solid"
+                this.$refs.countryEleDes.style.border = "2px black solid"
+                this.$refs.cityEleDes.style.border = "2px red solid"
+                this.$refs.modeEle.style.border = "2px black solid"
+
+
+            }else{
+
+
+                this.$refs.countryEle.style.border = "2px black solid"
+                this.$refs.cityEle.style.border = "2px black solid"
+                this.$refs.countryEleDes.style.border = "2px black solid"
+                this.$refs.cityEleDes.style.border = "2px black solid"
+                this.$refs.modeEle.style.border = "2px red solid"
             }
 
 
@@ -144,7 +270,7 @@ export default {
             const element = this.$refs.countryEle;
             this.elementLeft = this.getElementLeftOffset(element);
 
-            const elementReg = this.$refs.carTypeEle;
+            const elementReg = this.$refs.cityEleDes;
             if(elementReg != null){
 
                 this.elementWidth = this.getElementLeftOffset(elementReg) + this.getElementWidth(elementReg) - this.elementLeft
@@ -176,21 +302,49 @@ export default {
             if(this.countryFocased){
 
                 this.selectedCountry = this.paginatedData[index]
-                this.countySelected = true
-            }else{
+                this.countrySelected = true
+
+            }else if(this.cityFocased){
 
                 this.selectedCity = this.paginatedData[index]
                 this.citySelected = true
 
-                for(let ele of this.data){
+                if(this.selectedCountry === ""){
 
-                    if(ele.cities.includes(this.selectedCity)){
+                    for(let ele of this.data){
 
-                        this.selectedCountry = ele.country
-                        this.countySelected = true
-                        break
+                        if(ele.cities.includes(this.selectedCity)){
+
+                            this.selectedCountry = ele.country
+                            this.countrySelected = true
+                            break
+                        }
                     }
                 }
+
+
+            }else if(this.countryFocasedDes){
+
+                this.selectedCountryDes = this.paginatedData[index]
+                this.countrySelectedDes = true
+            }else{
+
+                this.selectedCityDes = this.paginatedData[index]
+                this.citySelectedDes = true
+
+                if(this.selectedCountryDes === ""){
+
+                    for(let ele of this.data){
+
+                        if(ele.cities.includes(this.selectedCityDes)){
+
+                            this.selectedCountryDes = ele.country
+                            this.countrySelectedDes = true
+                            break
+                        }
+                    }
+                }
+
             }
 
             this.search()
@@ -216,12 +370,22 @@ export default {
 
             if(this.countryFocased){
 
-            this.countySelected = false
-            this.selectedCity = ""
-            this.citySelected = false
-            }else{
+                this.countrySelected = false
+                this.selectedCity = ""
+                this.citySelected = false
 
-            this.citySelected = false
+            }else if(this.cityFocased){
+
+                this.citySelected = false
+            }else if(this.countryFocasedDes){
+
+                this.countrySelectedDes = false
+                this.selectedCityDes = ""
+                this.citySelectedDes = false
+
+            }else if(this.cityFocasedDes){
+
+                this.citySelectedDes = false
             }
 
             this.search()
@@ -243,9 +407,17 @@ export default {
 
                 this.inputVal = this.selectedCountry
 
-            }else{
+            }else if(this.cityFocased){
 
                 this.inputVal = this.selectedCity
+
+            }else if(this.countryFocasedDes){
+
+                this.inputVal = this.selectedCountryDes
+
+            }else{
+
+                this.inputVal = this.selectedCityDes
             }
 
             const newList = []
@@ -254,7 +426,7 @@ export default {
             if(this.inputVal !== ""){
 
 
-                const regex = new RegExp(`${this.inputVal}`,"ig");
+                const regex = new RegExp(`${this.inputVal}.*`,"ig");
 
 
                 if(this.countryFocased){
@@ -264,9 +436,9 @@ export default {
                         if(regex.test(ele)) newList.push(ele)
                     }
 
-                }else{
+                }else if(this.cityFocased){
 
-                    if(this.countySelected){
+                    if(this.countrySelected){
 
                         for(let ele of this.data){
 
@@ -287,7 +459,34 @@ export default {
                         }
 
                     }
+                }else if(this.countryFocasedDes){
 
+                    for(let ele of this.searchCountry){
+
+                        if(regex.test(ele)) newList.push(ele)
+                    }
+                }else{
+                    if(this.countrySelectedDes){
+
+                        for(let ele of this.data){
+
+                            if(ele.country == this.selectedCountryDes){
+
+                                for(let city of ele.cities){
+
+                                    if(regex.test(city)) newList.push(city)
+                                }
+                            }
+                        }
+                    }else{
+
+                        for(let ele of this.searchCity){
+
+
+                            if(regex.test(ele)) newList.push(ele)
+                        }
+
+                    }
                 }
 
                 this.searchData = newList
@@ -297,9 +496,9 @@ export default {
                 if(this.countryFocased){
 
                     this.searchData = this.searchCountry
-                }else{
+                }else if(this.cityFocased){
 
-                    if(this.countySelected){
+                    if(this.countrySelected){
 
                         for(let ele of this.data){
 
@@ -317,8 +516,31 @@ export default {
 
                         this.searchData = this.searchCity
                     }
+                }else if(this.countryFocasedDes){
+
+                    this.searchData = this.searchCountry
+
+                }else{
+                    
+                    if(this.countrySelectedDes){
+
+                        for(let ele of this.data){
+
+                            if(ele.country == this.selectedCountryDes){
+
+                                for(let city of ele.cities){
+
+                                    newList.push(city)
+                                }
+                            }
+                        }
+
+                        this.searchData = newList
+                    }else{
+
+                        this.searchData = this.searchCity
+                    }
                 }
-                
             }
 
             this.totalPages === 0? this.currentPage = 0:this.currentPage = 1
@@ -331,12 +553,83 @@ export default {
             if(this.currentPage > this.totalPages) this.currentPage = this.totalPages
         },
 
-        limitDuration(){
+        calculate(){
 
-            if(this.duration <= 0) this.duration = 1
+            if(this.citySelected  && this.citySelectedDes && this.countrySelected && this.countrySelectedDes && this.selectedMode != "Transport"){
 
-            if(this.duration > 999) this.duration = 999
-        },
+                const url = "https://preview.api.climatiq.io/travel/v1-preview1/distance"
+
+
+                axios.post(url,
+
+                    {
+
+                        "origin":{
+
+                            "query":`${this.selectedCity}, ${this.selectedCountry}`
+                        },
+                        "destination": {
+                            "query": `${this.selectedCityDes}, ${this.selectedCountryDes}`
+                        },
+                        "travel_mode": this.selectedMode,
+                    },
+
+                    {headers: {
+                        'Authorization': `Bearer ${this.apiKey}`,
+                    }},
+
+                ).then(res =>{
+
+                    this.calculatedData = res
+
+                    const instanceInfo = ` Total: ${this.calculatedData.data.co2e} ${this.calculatedData.data.co2e_unit}   |   Distance: ${this.calculatedData.data.distance_km} KM(s)`;
+
+                    this.charteData.series[0].data = [
+                        { value: this.calculatedData.data.direct_emissions.co2e, itemStyle: { color: 'rgb(255, 121, 121)' } },
+                        { value: this.calculatedData.data.indirect_emissions.co2e, itemStyle: { color: 'rgb(88, 181, 150)' } },
+                    ];
+
+                    this.charteData.series[0].name = instanceInfo;
+
+                    this.charteData.yAxis.max = parseFloat(this.calculatedData.data.co2e).toFixed(3);
+
+                    this.charteData.title.text = `Travel CO2 Emission:\nFrom: ${this.calculatedData.data.origin.name}\nTo: ${this.calculatedData.data.destination.name}`;
+
+                    this.charteData.legend.data = [instanceInfo]; 
+
+                    this.showChart = true;
+                }).catch(err =>{
+
+                    console.log(err)
+                })
+            }else{
+
+                if(!this.countrySelected){
+
+                    this.$refs.countryEle.style.border = "1px red solid"
+                }
+
+                if(!this.countrySelectedDes){
+
+                    this.$refs.countryEleDes.style.border = "1px red solid"
+                }
+
+                if(!this.citySelected){
+
+                    this.$refs.cityEle.style.border = "1px red solid"
+                }
+
+                if(!this.citySelectedDes){
+
+                    this.$refs.cityEleDes.style.border = "1px red solid"
+                }
+
+                if(this.selectedMode == "Transport"){
+
+                    this.$refs.modeEle.style.border = "1px red solid"
+                }
+            }
+        }
 
     },  
 
@@ -362,7 +655,6 @@ export default {
 
             this.searchData = this.searchCountry
             
-            console.log(this.data)
         })
         this.updateOtherElementPosition();
 
@@ -430,6 +722,13 @@ export default {
 
 }
 
+#warningText{
+
+    color: rgba(255, 255, 255, 0.5);
+    position: relative;
+    text-align: start;
+}
+
 #vmTitle >div:first-child{
 
     border: none;
@@ -450,6 +749,15 @@ export default {
     justify-content: start;
     align-items: start;
     margin-top: 1rem;
+}
+
+#chart{
+
+position: relative;
+width: 100%;
+height: 700px;
+color: white;
+top: 30px !important;
 }
 
 
@@ -492,9 +800,26 @@ export default {
     justify-content: space-around;
     align-items: center;
     width: 50vw;
-    height: 10;
+    height: 5vw;
     left: 50%;
     transform: translateX(-50%);
+}
+
+#transportDiv{
+
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+    height: 2vw;
+
+}
+
+#transportSelect{
+
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .selectBox{
@@ -626,6 +951,7 @@ input[type="number"] {
     color: rgb(255, 255, 255);
     background-color: rgba(255,255,255,0.3);
     transition: all 1s;
+    user-select: none;
 }
 
 #calBtn:hover{

@@ -10,7 +10,7 @@
             </div>
             <div class="selectBox"> 
                 <label for="region-select"></label>
-                <select v-if="showRegions" id="region-select" v-model="selectedRegion" @change="activateVM" ref="regionEle">
+                <select v-if="showRegions" id="region-select" v-model="selectedRegion" @change="activateVM" ref="regionEle" @click="focused(1)">
                     <option disabled selected>Regions</option>
                     <option v-for="(region,index) in regions" :key="index" :value="region">{{ region }}</option>
                 </select>
@@ -24,7 +24,7 @@
                         <span>Duration</span>
                         <input type="number" min="1" id="durationInput" v-model="duration" @change="limitDuration">
                     </div>
-                    <input type="text" class="vmEle" :style="{ width: searchWidth + 'px' }" placeholder ="Type for search..." @change="searchVms" v-model="inputVal">
+                    <input type="text" class="vmEle" :style="{ width: searchWidth + 'px' }" placeholder ="Type for search..." @change="searchVms" v-model="inputVal" ref="vmEle"  @click="focused(2)">
                 </div>
                 
                 <div v-for="(item, index) in paginatedData" :key="index" class="vmEle" :style="{width:elementWidth + 'px' }" @click="selectVm('vm'+index)" :id="'vm'+index">
@@ -42,18 +42,22 @@
 
             </div>
         </div>
-        </div>
-
+    </div>
+    <div :style="{ left: elementLeft + 'px !important', width:elementWidth + 'px' }" v-if="showChart" id="chart">
+        <chart-page :options="data"></chart-page>
+    </div>
+        
 </template>
   
 <script>
 
 import axios from 'axios';
+import ChartPage from './chartPage.vue';
 
 export default {
     name: "cloud-page",
     components:{
-
+        ChartPage
     },
 
     data(){
@@ -74,12 +78,73 @@ export default {
             inputVal: "",
             duration: 1,
             apiKey : 'JAZW4BVWY549KEH6XDRJPKHWC8',
-            calRes : "",
+            calRes:"",
+            showChart: false,
             data:{
-                memory:0.1382,
-                cpu:0.1065,
-                embodied_cpu:0.4989
+                title: {
+                    text: '',
+                    textStyle: {
+                        color: '#fff',
+                        fontSize: 18
+                    },
+                    left:"center"
+                },
+                tooltip: {
+
+                    trigger: 'axis',
+                    axisPointer: { 
+                        type: 'line' 
+                    },
+                    formatter: '{b}: {c}'
+                },
+                xAxis: {
+                    data: ['Memory', 'Cpu', 'Embodied Cpu'],
+                    axisLabel: {
+                        color: '#ccc',
+                        fontSize: 14
+                    }
+                },
+                yAxis: {
+                    min: 0,
+                    max: 0,
+                    axisLabel: {
+                        color: '#ccc',
+                        fontSize: 14,
+                        formatter: function(value) {
+                            return value.toFixed(3);
+                        }
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(255, 255, 255, 0.2)', 
+                            width: 0.5,
+                            type: 'solid'
+                        }
+                    },
+
+
+                },
+                series: [
+                {
+                    name: 'KG',
+                    type: 'bar',
+                    data: []
+                }
+                ],
+                legend:{
+                    data:[],
+                    textStyle:{
+
+                        color:"#fff",
+                        fontSize:14
+                    },
+                    color: "#fff",
+                    bottom: "10px",
+                    left: "center", 
+                    orient: "vertical",
+                }
             }
+            
         }
     },
 
@@ -157,6 +222,19 @@ export default {
             ele.style.border = "2px solid rgb(225, 225, 225)"
         },
 
+        focused(param){
+
+            if(param === 1){
+
+                this.$refs.regionEle.style.border = "2px black solid"
+            }
+
+            if(param === 2){
+
+                this.$refs.vmEle.style.border = "2px black solid"
+            }
+        },
+
         initializeSelection(){
 
             if(this.previousSelectedVm != ""){
@@ -177,7 +255,7 @@ export default {
             if(this.inputVal !== ""){
 
 
-                const regex = new RegExp(`${this.inputVal}`,"ig");
+                const regex = new RegExp(`${this.inputVal}.*`,"ig");
 
                 const newList = []
 
@@ -214,54 +292,98 @@ export default {
 
         calculate(){
 
-            /*const url = `https://api.climatiq.io/compute/v1/${this.selectedProvider}/instance`
-            const vmIndex = parseInt(this.previousSelectedVm.slice(2))
-            console.log(this.previousSelectedVm.slice(2))
+            if(this.selectedRegion != "Regions" && this.previousSelectedVm != ""){
 
-            axios.post(url,
+                this.showChart = true;
 
-                {
 
-                    "region":this.selectedRegion,
-                    "instance":this.vms[(this.pageSize-1) * this.currentPage + vmIndex],
-                    "duration":this.duration,
-                    "duration_unit": "h"
-                },
+                const url = `https://api.climatiq.io/compute/v1/${this.selectedProvider}/instance`
+                const vmIndex = parseInt(this.previousSelectedVm.slice(2))
 
-                {headers: {
-                    'Authorization': `Bearer ${this.apiKey}`,
-                }},
+                axios.post(url,
 
-            ).then(response =>{
+                    {
 
-                this.calRes = response
-            }).catch(error=>{
+                        "region":this.selectedRegion,
+                        "instance":this.vms[(this.pageSize-1) * this.currentPage + vmIndex],
+                        "duration":this.duration,
+                        "duration_unit": "h"
+                    },
 
-                console.log(error)
-            })*/
+                    {headers: {
+                        'Authorization': `Bearer ${this.apiKey}`,
+                    }},
 
+                ).then(response =>{
+
+
+                    this.calRes = response;
+
+                    const instanceInfo = ` Instance: ${this.calRes.data.calculation_details.instance}   |   Duration: ${this.duration} hour(s)`;
+
+                    this.data.series[0].data = [
+                        { value: this.calRes.data.memory_estimate.co2e, itemStyle: { color: 'rgb(255, 121, 121)' } },
+                        { value: this.calRes.data.cpu_estimate.co2e, itemStyle: { color: 'rgb(88, 181, 150)' } },
+                        { value: this.calRes.data.embodied_cpu_estimate.co2e, itemStyle: { color: 'rgb(88, 141, 181)' } }
+                    ];
+
+                    this.data.series[0].name = instanceInfo;
+
+                    this.data.yAxis.max = parseFloat(this.calRes.data.total_co2e).toFixed(3);
+
+                    this.data.title.text = "Cloud CO2 Emission";
+
+                    this.data.legend.data = [instanceInfo]; 
+
+                }).catch(error=>{
+
+                    console.log(error)
+                })
+            }else{
+
+                if(this.selectedRegion === "Regions"){
+
+                    this.$refs.regionEle.style.border = "1px red solid"
+                }
+
+                if(this.previousSelectedVm === ""){
+
+                    this.$refs.vmEle.style.border = "1px red solid"
+                }
+            }
 
         }
     },  
 
     mounted(){
 
-        const url = 'https://api.climatiq.io/compute/v1/metadata'
+        if(localStorage.getItem("vm") == null){
 
-        axios.get(url, {
+            const url = 'https://api.climatiq.io/compute/v1/metadata'
 
-            headers: {
-                'Authorization': `Bearer ${this.apiKey}`,
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(response => {
-                this.providers = response.data.cloud_providers
-                console.log(response.data.cloud_providers)
+            axios.get(url, {
+
+                headers: {
+                    'Authorization': `Bearer ${this.apiKey}`,
+                    'Content-Type': 'application/json'
+                }
             })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+                .then(response => {
+                    this.providers = response.data.cloud_providers
+                    console.log('Api data: '+response.data.cloud_providers)
+                    localStorage.setItem("vm",JSON.stringify(this.providers))
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+
+        }else{
+
+            this.providers = JSON.parse(localStorage.getItem('vm'))
+
+        }
+
+
 
         this.updateOtherElementPosition();
 
@@ -382,6 +504,7 @@ export default {
     display: flex;
     flex-direction: column;
     justify-content: start;
+    overflow-x: hidden;
 }
 
 #selectDiv{
@@ -446,12 +569,23 @@ input::placeholder{
     align-items: center;
 }
 
+#chart{
+
+    position: relative;
+    width: 100%;
+    height: 400px;
+    color: white;
+    top: 30px !important;
+}
+
+
 #pageSpan{
 
     display: flex;
     flex-direction: row;
     align-items: center;
     min-width: fit-content;
+    color: rgba(255, 255, 255, 0.7);
 }
 
 #durationInput{
@@ -522,6 +656,7 @@ input[type="number"] {
     color: rgb(255, 255, 255);
     background-color: rgba(255,255,255,0.3);
     transition: all 1s;
+    user-select: none;
 }
 
 #calBtn:hover{
@@ -532,4 +667,3 @@ input[type="number"] {
 }
 
 </style>
-  

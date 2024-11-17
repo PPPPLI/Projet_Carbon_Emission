@@ -1,37 +1,36 @@
 <template>
-    <div>
-      <BarChart />
-    </div>
+    <div ref="chart" id="chart"></div>
   </template>
   
   <script>
-  import { Bar } from 'vue-chartjs';
-  import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js';
-  
-  ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+  import * as echarts from 'echarts';
   
   export default {
-    name: 'MyChart',
-    components: {
-      BarChart: Bar
+    name: 'chart-page',
+    props: {
+      options: {
+        type: Object,
+        required: true
+      }
     },
-    data() {
-      return {
-        chartData: {
-          labels: ['January', 'February', 'March', 'April', 'May', 'June'],
-          datasets: [
-            {
-              label: 'Sales',
-              backgroundColor: '#f87979',
-              data: [40, 20, 12, 39, 10, 40]
-            }
-          ]
+    mounted() {
+      this.chart = echarts.init(this.$refs.chart);
+      this.chart.setOption(this.options);
+      window.addEventListener('resize', this.chart.resize);
+    },
+    watch: {
+        options: {
+            handler(newOptions) {
+                this.chart.setOption(newOptions);
+            },
+            deep: true
         },
-        chartOptions: {
-          responsive: true,
-          maintainAspectRatio: false
-        }
-      };
+    },
+    beforeUnmount() {
+      window.removeEventListener('resize', this.chart.resize);
+      if (this.chart) {
+        this.chart.dispose();
+      }
     }
   };
   </script>

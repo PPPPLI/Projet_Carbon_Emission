@@ -1,7 +1,7 @@
 
 # Projet Carbon Emission
 
-This project was developed for the course **Interface Development and Design**, focusing on the **Climatiq API**. A **video demo** is included in the **root directory** of the project to provide a clear overview of the application's features and functionality. You can watch this demo for a better understanding of how the application works.
+This project was developed for the course **Interface Development and Design**, focusing on the **Climatiq API**. A **VIDEO DEMO** is included in the **ROOT DIRECTORY** of the project to provide a clear overview of the application's features and functionality. You can watch this demo for a better understanding of how the application works.
 
 ## Objectives
 

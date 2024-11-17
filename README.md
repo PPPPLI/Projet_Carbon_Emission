@@ -1,1 +1,64 @@
 
+# Projet Carbon Emission
+
+This project is for the course **Interface Development and Design**. The chosen subject focuses on the **Climatiq API**.
+
+## Objectives
+
+- **OAuth Integration**:
+  - Microsoft OAuth and Google OAuth login.
+  - Display user data in header components.
+  - Correctly handle logout for both Microsoft and Google OAuth.
+  
+- **CO2 Emission Calculations**:
+  - Cloud computing activities.
+  - Flights.
+  - Custom activities.
+
+- **Graphical Comparisons**:
+  - Provide visual comparisons of CO2 emissions (e.g., between countries).
+
+---
+
+## Installation
+
+Before installing the project, ensure that the `.env` file is correctly set up at the root of the project folder.
+
+### Example `.env` File
+```
+VUE_APP_MICROSOFT_OAUTH_CLIENT_ID=e8137439-4d1d-462d-a85f-f81cfea8f0d8
+VUE_APP_GOOGLE_OAUTH_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID
+VUE_APP_GOOGLE_OAUTH_CLIENT_SECRET=YOUR_GOOGLE_CLIENT_SECRET
+VUE_APP_CLIMATIQ_API_KEY=YOUR_CLIMATIQ_API_KEY
+```
+
+### Steps to Install
+
+1. Navigate to the project folder.
+2. Run the following command to install dependencies:
+   ```bash
+   npm install
+   ```
+3. Launch the project with:
+   ```bash
+   npm run serve
+   ```
+4. Open the application at the default URL provided by the server.
+
+---
+
+## Features
+
+- Microsoft and Google OAuth authentication and logout.
+- CO2 emission calculation for various activities.
+- Graphical comparisons of emissions between countries.
+- User-friendly interface for managing custom activities.
+
+---
+
+## Group Members
+
+- Ramanantsalama Matthieu
+- Liu Pei
+- Xia Ruixiang
+

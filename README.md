@@ -55,8 +55,8 @@ VUE_APP_OAUTH_CLIENT_ID=e8137439-4d1d-462d-a85f-f81cfea8f0d8
 
 ## Group Members
 
-- Liu Pei
-- Xia Ruixiang
-- Ramanantsalama Matthieu
+- LIU Pei
+- XIA Ruixiang
+- RAMANANTSALAMA Matthieu
 
 

@@ -12,8 +12,8 @@ This project is for the course **Interface Development and Design**. The chosen 
   
 - **CO2 Emission Calculations**:
   - Cloud computing activities.
-  - Flights.
-  - Custom activities.
+  - Business travel activities.
+  - Custom activities (cars and rails).
 
 - **Graphical Comparisons**:
   - Display graphical visualizations of CO2 emissions to facilitate easy comparison, such as emission differences between countries.

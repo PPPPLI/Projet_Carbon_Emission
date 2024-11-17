@@ -18,12 +18,6 @@
             <div class="container">
                 <router-link to="/flight"><div id="flightImg" class="imgGroup"></div></router-link>
             </div>
-            <div class="pointDiv">
-                <div class="pointImg"></div>
-            </div>
-            <div class="container"> 
-                <router-link to="/travel"><div id="travelImg" class="imgGroup"></div></router-link>
-            </div>
         </div>
 
     </div>

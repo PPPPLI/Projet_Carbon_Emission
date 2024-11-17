@@ -54,13 +54,12 @@ function isAuthenticated(){
 
     if(localStorage.getItem("user") != null){
 
-        let date = JSON.parse(localStorage.getItem("createdDate"),Number)
+        let date = JSON.parse(localStorage.getItem("createdDate"))
 
-        let currentTime =  (Date.now() + 3600000)
+        let currentTime =  (Date.now() - 3600000)
 
 
-
-        if(date < currentTime){
+        if(date >= currentTime){
 
             return true
         }

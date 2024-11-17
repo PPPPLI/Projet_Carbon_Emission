@@ -33,7 +33,7 @@
                 </div>
             </div>
 
-            <div id="footerDiv" :style="{ left: elementLeft + 'px', width:elementWidth + 'px' }">
+            <div id="footerDiv" :style="{ left: elementLeft + 'px', width:elementWidth + 'px' }" v-if="showCalBtn">
                 <div :style="{ width: titleWidth + 'px' }" id="pagination">
                     <button @click="prevPage" :disabled="currentPage <= 1" class="pageBtn">Previous</button>
                     <span id="pageSpan"><input type="number" v-model="currentPage" id="pageInput" min="1" :max="totalPages" @change="limitNum">&nbsp;&nbsp;/  Total {{ totalPages }}</span>
@@ -96,6 +96,7 @@ export default {
             searchData:[],
             calculatedData:"",
             showChart: false,
+            showCalBtn: false,
             charteData: {
                 title: {
                     text: 'Emission Data',
@@ -629,39 +630,39 @@ export default {
                     this.$refs.modeEle.style.border = "1px red solid"
                 }
             }
+        },
+
+        async fetchData() {
+            try {
+
+                const res = await axios.get("https://countriesnow.space/api/v0.1/countries");
+
+                this.data = res.data.data;
+
+                this.searchCountry = this.data.map(ele => ele.country); 
+                this.searchCity = this.data.flatMap(ele => ele.cities);
+
+                this.searchData = this.searchCountry;
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
         }
+
 
     },  
 
     mounted(){
 
-        axios.get("https://countriesnow.space/api/v0.1/countries").then(res =>{
-
-            this.data = res.data.data
-
-            for(let ele of this.data){
-
-                this.searchCountry.push(ele.country)
-
-            }
-
-            for(let ele of this.data){
-
-                for(let city of ele.cities){
-
-                    this.searchCity.push(city)
-                }
-            }
-
-            this.searchData = this.searchCountry
-            
-        })
+        this.fetchData()
+        
         this.updateOtherElementPosition();
 
         window.addEventListener("scroll", this.updateOtherElementPosition);
         window.addEventListener("resize", this.updateOtherElementPosition);
 
         this.$refs.countryEle.style.border = "2px red solid"
+
+        this.showCalBtn = true
     },
 
     beforeUnmount() {

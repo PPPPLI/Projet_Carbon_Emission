@@ -427,7 +427,7 @@ export default {
             if(this.inputVal !== ""){
 
 
-                const regex = new RegExp(`${this.inputVal}.*`,"ig");
+                const regex = new RegExp(`${this.inputVal}.*`,"i");
 
 
                 if(this.countryFocased){

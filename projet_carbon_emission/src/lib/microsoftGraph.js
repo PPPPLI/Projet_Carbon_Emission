@@ -1,6 +1,13 @@
 // file src/lib/microsoftGraph.js
 import * as msal from "@azure/msal-browser"
 
+if (typeof crypto === 'undefined') {
+    import('crypto').then(cryptoModule => {
+        global.crypto = cryptoModule.webcrypto;
+    });
+}
+
+
 /**
  * List the requested scopes(aka. the requested permissions)
  */

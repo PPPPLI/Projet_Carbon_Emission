@@ -251,20 +251,25 @@ export default {
 
             const vmsList = this.providers[this.selectedProvider].virtual_machine_instances
 
-
             if(this.inputVal !== ""){
 
 
-                const regex = new RegExp(`${this.inputVal}.*`,"ig");
+                const regex = new RegExp(`${this.inputVal}.*`,"i");
 
                 const newList = []
 
 
                 for(let ele of vmsList){
 
-
-                    if(regex.test(ele)) newList.push(ele)
+                    
+                    if(regex.test(ele)){
+                        
+                        newList.push(ele)
+                    
+                    }
                 }
+
+                console.log(newList)
 
                 this.vms = newList
 
@@ -370,7 +375,6 @@ export default {
             })
                 .then(response => {
                     this.providers = response.data.cloud_providers
-                    console.log('Api data: '+response.data.cloud_providers)
                     localStorage.setItem("vm",JSON.stringify(this.providers))
                 })
                 .catch(error => {
